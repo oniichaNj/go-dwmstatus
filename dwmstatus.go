@@ -56,11 +56,15 @@ func nowPlaying(addr string) (np string, err error) {
 	conn.Read(reply)
 	r := string(reply)
 	arr := strings.Split(string(r), "\n")
-	title, artist := arr[3], arr[4]
-	title = strings.TrimPrefix(title, "Title: ")
-	artist = strings.TrimPrefix(artist, "Artist: ")
-	np = artist + " - " + title
-	return np, nil
+	if len(arr) > 5 {
+		title, artist := arr[3], arr[4] //This is very unpredictable and only works on the albums I own. It's probably better to iterate through the array and find the strings starting with "Artist: " and "Title: "
+		title = strings.SplitAfterN(title, ":", 2)[1]
+		artist = strings.SplitAfterN(artist, ":", 2)[1]
+		np = artist + " - " + title
+		return np, nil
+	} else {
+		return "Playlist is empty.", err
+	}
 }
 
 func formatStatus(format string, args ...interface{}) *C.char {
