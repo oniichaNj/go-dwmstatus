@@ -14,7 +14,7 @@ var dpy = C.XOpenDisplay(nil)
 
 func setStatus(s *C.char) {
 	C.XStoreName(dpy, C.XDefaultRootWindow(dpy), s)
-	C.XSync(dpy, 1);
+	C.XSync(dpy, 1)
 }
 
 func formatStatus(format string, args ...interface{}) *C.char {
@@ -31,9 +31,9 @@ func main() {
 	if dpy == nil {
 		die("Can't open display")
 	}
-	for ;; {
-		s := formatStatus("%s",time.Now().Format("15:04"))
+	for {
+		s := formatStatus("%s", time.Now().Format("15:04"))
 		setStatus(s)
-		time.Sleep(1*time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }
