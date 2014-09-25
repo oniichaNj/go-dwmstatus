@@ -77,7 +77,7 @@ func main() {
 		log.Fatal("Can't open display")
 	}
 	for {
-		t := time.Now().Format("Mon 08 15:04")
+		t := time.Now().Format("Mon 02 15:04")
 		b, err := getBatteryPercentage("/sys/class/power_supply/BAT0")
 		if err != nil {
 			log.Fatal(err)
