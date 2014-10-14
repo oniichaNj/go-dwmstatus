@@ -80,15 +80,15 @@ func main() {
 		t := time.Now().Format("Mon 02 15:04")
 		b, err := getBatteryPercentage("/sys/class/power_supply/BAT0")
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		l, err := getLoadAverage("/proc/loadavg")
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		m, err := nowPlaying("localhost:6600")
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 		s := formatStatus("%s :: %s :: %s :: %d%%", m, l, t, b)
 		setStatus(s)
