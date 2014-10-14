@@ -46,7 +46,8 @@ func setStatus(s *C.char) {
 func nowPlaying(addr string) (np string, err error) {
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
-		return "Couldn't connect to mpd.", nil
+		np = "Couldn't connect to mpd."
+		return
 	}
 	defer conn.Close()
 	reply := make([]byte, 512)
@@ -68,9 +69,10 @@ func nowPlaying(addr string) (np string, err error) {
 			}
 		}
 		np = artist + " - " + title
-		return np, nil
-	} else {
-		return "Playlist is empty.", nil //This is a nonfatal error.
+		return
+	} else { //This is a nonfatal error.
+		np = "Playlist is empty."
+		return
 	}
 }
 
