@@ -45,10 +45,10 @@ func setStatus(s *C.char) {
 
 func nowPlaying(addr string) (np string, err error) {
 	conn, err := net.Dial("tcp", addr)
-	defer conn.Close()
 	if err != nil {
 		return "Couldn't connect to mpd.", nil
 	}
+	defer conn.Close()
 	reply := make([]byte, 512)
 	conn.Read(reply) // The mpd OK has to be read before we can actually do things.
 	message := "currentsong\n"
