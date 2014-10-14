@@ -57,9 +57,16 @@ func nowPlaying(addr string) (np string, err error) {
 	r := string(reply)
 	arr := strings.Split(string(r), "\n")
 	if len(arr) > 5 {
-		title, artist := arr[3], arr[4] //This is very unpredictable and only works on the albums I own. It's probably better to iterate through the array and find the strings starting with "Artist: " and "Title: "
-		title = strings.SplitAfterN(title, ":", 2)[1]
-		artist = strings.SplitAfterN(artist, ":", 2)[1]
+		var artist, title string
+		for _, info := range arr {
+			field := strings.SplitN(info, ":", 2)
+			switch field[0] {
+			case "Artist":
+				artist = field[1]
+			case "Title":
+				title = field[1]
+			}
+		}
 		np = artist + " - " + title
 		return np, nil
 	} else {
