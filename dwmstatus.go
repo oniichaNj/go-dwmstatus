@@ -52,11 +52,23 @@ func nowPlaying(addr string) (np string, err error) {
 	defer conn.Close()
 	reply := make([]byte, 512)
 	conn.Read(reply) // The mpd OK has to be read before we can actually do things.
-	message := "currentsong\n"
+
+	message := "status\n"
 	conn.Write([]byte(message))
 	conn.Read(reply)
 	r := string(reply)
 	arr := strings.Split(string(r), "\n")
+	if arr[8] != "state: play" { //arr[8] is the state according to the mpd documentation
+		status := strings.SplitN(arr[8], ": ", 2)
+		np := fmt.Sprintf("mpd - [%s]", status[1]) //status[1] should now be stopped or paused
+		return
+	}
+
+	message = "currentsong\n"
+	conn.Write([]byte(message))
+	conn.Read(reply)
+	r = string(reply)
+	arr = strings.Split(string(r), "\n")
 	if len(arr) > 5 {
 		var artist, title string
 		for _, info := range arr {
