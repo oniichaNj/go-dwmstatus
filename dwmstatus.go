@@ -82,6 +82,8 @@ func nowPlaying(addr string) (np string, err error) {
 				artist = field[1]
 			case "Title":
 				title = field[1]
+			default:
+				//do nothing with the field
 			}
 		}
 		np = artist + " - " + title
