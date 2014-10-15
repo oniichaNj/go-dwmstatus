@@ -18,16 +18,19 @@ var dpy = C.XOpenDisplay(nil)
 func getBatteryPercentage(path string) (perc int, err error) {
 	energy_now, err := ioutil.ReadFile(fmt.Sprintf("%s/energy_now", path))
 	if err != nil {
-		return -1, err
+		perc = -1
+		return
 	}
 	energy_full, err := ioutil.ReadFile(fmt.Sprintf("%s/energy_full", path))
 	if err != nil {
-		return -1, err
+		perc = -1
+		return
 	}
 	var enow, efull int
 	fmt.Sscanf(string(energy_now), "%d", &enow)
 	fmt.Sscanf(string(energy_full), "%d", &efull)
-	return enow * 100 / efull, nil
+	perc = enow * 100 / efull
+	return
 }
 
 func getLoadAverage(file string) (lavg string, err error) {
@@ -35,7 +38,8 @@ func getLoadAverage(file string) (lavg string, err error) {
 	if err != nil {
 		return "Couldn't read loadavg", err
 	}
-	return strings.Join(strings.Fields(string(loadavg))[:3], " "), nil
+	lavg = strings.Join(strings.Fields(string(loadavg))[:3], " ")
+	return
 }
 
 func setStatus(s *C.char) {
