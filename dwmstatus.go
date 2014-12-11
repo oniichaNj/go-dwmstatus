@@ -1,7 +1,8 @@
 package main
 
-// #cgo LDFLAGS: -lX11
+// #cgo LDFLAGS: -lX11 -lasound
 // #include <X11/Xlib.h>
+// #include "getvol.h"
 import "C"
 
 import (
@@ -14,6 +15,10 @@ import (
 )
 
 var dpy = C.XOpenDisplay(nil)
+
+func getVolumePerc() int {
+	return int(C.get_volume_perc())
+}
 
 func getBatteryPercentage(path string) (perc int, err error) {
 	energy_now, err := ioutil.ReadFile(fmt.Sprintf("%s/energy_now", path))
@@ -117,7 +122,8 @@ func main() {
 		if err != nil {
 			log.Println(err)
 		}
-		s := formatStatus("%s :: %s :: %s :: %d%%", m, l, t, b)
+		vol := getVolumePerc()
+		s := formatStatus("%s :: %d%% :: %s :: %s :: %d%%", m, vol, l, t, b)
 		setStatus(s)
 		time.Sleep(time.Second)
 	}
