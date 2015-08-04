@@ -84,9 +84,9 @@ func nowPlaying(addr string) (np string, err error) {
 			field := strings.SplitN(info, ":", 2)
 			switch field[0] {
 			case "Artist":
-				artist = field[1]
+				artist = strings.TrimSpace(field[1])
 			case "Title":
-				title = field[1]
+				title = strings.TrimSpace(field[1])
 			default:
 				//do nothing with the field
 			}
