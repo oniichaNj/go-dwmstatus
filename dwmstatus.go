@@ -38,13 +38,26 @@ func getBatteryPercentage(path string) (perc int, err error) {
 	return
 }
 
-func getBatterySymbol(bat_percent int) (symbol string) {
+func getBatteryChargingStatus(path string) (isCharging bool, err error) {
+	status, err := ioutil.ReadFile(fmt.Sprintf("%s/status", path))
+	if err != nil {
+		return
+	}
+
+	isCharging = (string(status) == "Charging\n")
+
+	return
+}
+
+func getBatterySymbol(bat_percent int, charging bool) (symbol string) {
 
 	bat_full := ""
 	bat_3quater := ""
 	bat_half := ""
 	bat_quater := ""
 	bat_empty := ""
+
+	charging_symbol := ""
 
 	if bat_percent > 75 {
 		symbol = bat_full
@@ -56,6 +69,10 @@ func getBatterySymbol(bat_percent int) (symbol string) {
 		symbol = bat_quater
 	} else {
 		symbol = bat_empty
+	}
+
+	if charging {
+		symbol = charging_symbol
 	}
 
 	return
@@ -137,6 +154,10 @@ func main() {
 		if err != nil {
 			log.Println(err)
 		}
+		bc, err := getBatteryChargingStatus("/sys/class/power_supply/BAT0")
+		if err != nil {
+			log.Println(err)
+		}
 		l, err := getLoadAverage("/proc/loadavg")
 		if err != nil {
 			log.Println(err)
@@ -145,9 +166,10 @@ func main() {
 		if err != nil {
 			log.Println(err)
 		}
-		bat_symbol := getBatterySymbol(b)
+		bat_symbol := getBatterySymbol(b, bc)
 		vol := getVolumePerc()
 		s := formatStatus(" %s :: %d%% :: %s  %s %s %d%%", m, vol, l, t, bat_symbol, b)
+		// fmt.Printf(" %s :: %d%% :: %s  %s %s %d%%", m, vol, l, t, bat_symbol, b)
 		setStatus(s)
 		time.Sleep(time.Second)
 	}
