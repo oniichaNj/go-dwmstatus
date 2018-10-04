@@ -21,12 +21,12 @@ func getVolumePerc() int {
 }
 
 func getBatteryPercentage(path string) (perc int, err error) {
-	energy_now, err := ioutil.ReadFile(fmt.Sprintf("%s/energy_now", path))
+	energy_now, err := ioutil.ReadFile(fmt.Sprintf("%s/charge_now", path))
 	if err != nil {
 		perc = -1
 		return
 	}
-	energy_full, err := ioutil.ReadFile(fmt.Sprintf("%s/energy_full", path))
+	energy_full, err := ioutil.ReadFile(fmt.Sprintf("%s/charge_full", path))
 	if err != nil {
 		perc = -1
 		return
@@ -35,6 +35,46 @@ func getBatteryPercentage(path string) (perc int, err error) {
 	fmt.Sscanf(string(energy_now), "%d", &enow)
 	fmt.Sscanf(string(energy_full), "%d", &efull)
 	perc = enow * 100 / efull
+	return
+}
+
+func getBatteryChargingStatus(path string) (isCharging bool, err error) {
+	status, err := ioutil.ReadFile(fmt.Sprintf("%s/status", path))
+	if err != nil {
+		return
+	}
+
+	isCharging = (string(status) == "Charging\n")
+
+	return
+}
+
+func getBatterySymbol(bat_percent int, charging bool) (symbol string) {
+
+	bat_full := ""
+	bat_3quater := ""
+	bat_half := ""
+	bat_quater := ""
+	bat_empty := ""
+
+	charging_symbol := ""
+
+	if bat_percent > 75 {
+		symbol = bat_full
+	} else if bat_percent > 50 {
+		symbol = bat_3quater
+	} else if bat_percent > 25 {
+		symbol = bat_half
+	} else if bat_percent > 10 {
+		symbol = bat_quater
+	} else {
+		symbol = bat_empty
+	}
+
+	if charging {
+		symbol = charging_symbol
+	}
+
 	return
 }
 
@@ -114,6 +154,10 @@ func main() {
 		if err != nil {
 			log.Println(err)
 		}
+		bc, err := getBatteryChargingStatus("/sys/class/power_supply/BAT0")
+		if err != nil {
+			log.Println(err)
+		}
 		l, err := getLoadAverage("/proc/loadavg")
 		if err != nil {
 			log.Println(err)
@@ -122,8 +166,10 @@ func main() {
 		if err != nil {
 			log.Println(err)
 		}
+		bat_symbol := getBatterySymbol(b, bc)
 		vol := getVolumePerc()
-		s := formatStatus("%s :: %d%% :: %s :: %s :: %d%%", m, vol, l, t, b)
+		s := formatStatus(" %s :: %d%% :: %s  %s %s %d%%", m, vol, l, t, bat_symbol, b)
+		// fmt.Printf(" %s :: %d%% :: %s  %s %s %d%%", m, vol, l, t, bat_symbol, b)
 		setStatus(s)
 		time.Sleep(time.Second)
 	}
